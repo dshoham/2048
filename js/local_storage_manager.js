@@ -61,3 +61,17 @@ LocalStorageManager.prototype.setGameState = function (gameState) {
 LocalStorageManager.prototype.clearGameState = function () {
   this.storage.removeItem(this.gameStateKey);
 };
+
+// Game previous state getters/setters and clearing
+LocalStorageManager.prototype.getGamePreviousState = function () {
+  var stateJSON = this.storage.getItem(this.gamePreviousStateKey);
+  return stateJSON ? JSON.parse(stateJSON) : null;
+};
+
+LocalStorageManager.prototype.setGamePreviousState = function (gamePreviousState) {
+  this.storage.setItem(this.gamePreviousStateKey, JSON.stringify(gamePreviousState));
+};
+
+LocalStorageManager.prototype.clearGamePreviousState = function () {
+  this.storage.removeItem(this.gamePreviousStateKey);
+};
