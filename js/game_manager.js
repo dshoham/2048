@@ -8,6 +8,7 @@ function GameManager(size, InputManager, Actuator, StorageManager) {
 
   this.inputManager.on("move", this.move.bind(this));
   this.inputManager.on("restart", this.restart.bind(this));
+  this.inputManager.on("undo", this.undo.bind(this));
   this.inputManager.on("keepPlaying", this.keepPlaying.bind(this));
 
   this.setup();
@@ -16,8 +17,36 @@ function GameManager(size, InputManager, Actuator, StorageManager) {
 // Restart the game
 GameManager.prototype.restart = function () {
   this.storageManager.clearGameState();
+  this.storageManager.clearGamePreviousState();
   this.actuator.continueGame(); // Clear the game won/lost message
   this.setup();
+};
+
+// Undo last move
+GameManager.prototype.undo = function () {
+  var previousState = this.storageManager.getGamePreviousState();
+
+  // Reload the game from a previous game if present
+  if (previousState) {
+    this.grid        = new Grid(previousState.grid.size,
+                                previousState.grid.cells); // Reload grid
+    this.score       = previousState.score;;
+    this.over        = previousState.over;
+    this.won         = previousState.won;
+    this.keepPlaying = previousState.keepPlaying;
+  } else {
+    this.grid        = new Grid(this.size);
+    this.score       = 0;
+    this.over        = false;
+    this.won         = false;
+    this.keepPlaying = false;
+
+    // Add the initial tiles
+    this.addStartTiles();
+  }
+
+  // Update the actuator
+  this.actuate();
 };
 
 // Keep playing after winning (allows going over 2048)
@@ -88,6 +117,7 @@ GameManager.prototype.actuate = function () {
   // Clear the state when the game is over (game over only, not win)
   if (this.over) {
     this.storageManager.clearGameState();
+    this.storageManager.clearGamePreviousState();
   } else {
     this.storageManager.setGameState(this.serialize());
   }
@@ -136,6 +166,9 @@ GameManager.prototype.move = function (direction) {
   var self = this;
 
   if (this.isGameTerminated()) return; // Don't do anything if the game's over
+  
+  var currentState = this.storageManager.getGameState();
+  this.storageManager.setGamePreviousState(currentState);
 
   var cell, tile;
 
