@@ -17,7 +17,6 @@ function GameManager(size, InputManager, Actuator, StorageManager) {
 // Restart the game
 GameManager.prototype.restart = function () {
   this.storageManager.clearGameState();
-  this.storageManager.clearGamePreviousState();
   this.actuator.continueGame(); // Clear the game won/lost message
   this.setup();
 };
@@ -25,6 +24,7 @@ GameManager.prototype.restart = function () {
 // Undo last move
 GameManager.prototype.undo = function () {
   var previousState = this.storageManager.getGamePreviousState();
+  this.actuator.continueGame(); // Clear the game won/lost message
 
   // Reload the game from a previous game if present
   if (previousState) {
@@ -117,7 +117,6 @@ GameManager.prototype.actuate = function () {
   // Clear the state when the game is over (game over only, not win)
   if (this.over) {
     this.storageManager.clearGameState();
-    this.storageManager.clearGamePreviousState();
   } else {
     this.storageManager.setGameState(this.serialize());
   }
