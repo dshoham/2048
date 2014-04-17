@@ -167,8 +167,8 @@ GameManager.prototype.move = function (direction) {
 
   if (this.isGameTerminated()) return; // Don't do anything if the game's over
   
+  // Remember the current state for the undo option, we'll keep it only if there was an actual move
   var currentState = this.storageManager.getGameState();
-  this.storageManager.setGamePreviousState(currentState);
 
   var cell, tile;
 
@@ -218,6 +218,9 @@ GameManager.prototype.move = function (direction) {
 
   if (moved) {
     this.addRandomTile();
+	
+	// Keep previous state for undo, only if there was an actual move
+	this.storageManager.setGamePreviousState(currentState);
 
     if (!this.movesAvailable()) {
       this.over = true; // Game over!
